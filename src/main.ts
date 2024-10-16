@@ -81,3 +81,33 @@ clearButton.addEventListener("click", ()=>{
 })
 
 app.append(clearButton);
+
+//Undo Button
+let undoStack: Point[][] = []; //Emulate stack behavior with push and pop
+
+const undoButton = document.createElement("button");
+undoButton.innerHTML = "Undo"
+
+undoButton.addEventListener("click", ()=>{
+    if(pointContainer.length != 0){
+        let temp: Point[]= pointContainer.pop();
+        undoStack.push(temp);
+        canvas.dispatchEvent(new Event("drawing-changed"));
+    }
+})
+
+app.append(undoButton);
+
+//Redo Button
+const redoButton = document.createElement("button");
+redoButton.innerHTML = "Redo"
+
+redoButton.addEventListener("click", ()=>{
+    if(undoStack.length!=0){
+        let temp: Point = undoStack.pop();
+        pointContainer.push(temp);
+        canvas.dispatchEvent(new Event("drawing-changed"));
+    }
+})
+
+app.append(redoButton);
