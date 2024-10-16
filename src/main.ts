@@ -21,49 +21,63 @@ canvas.height = 256;
 app.append(canvas);
 
 //Drawing
+interface Point {
+    x: number;
+    y: number;
+}
+let pointContainer: Point [][] = [];
 let isDrawing: boolean = false;
 let x:number = 0;
 let y:number = 0;
 
 canvas.addEventListener("mousedown", (e)=>{
-    x = e.offsetX;
-    y = e.offsetY;
+    let insert: Point = {x:e.offsetX, y:e.offsetY};
+    pointContainer.push([insert]);
     isDrawing = true;
+    canvas.dispatchEvent(new Event("drawing-changed"));
 })
 
 canvas.addEventListener("mousemove", (e)=>{
     if (isDrawing) {
-        drawLine(context, x, y, e.offsetX, e.offsetY);
-        x = e.offsetX;
-        y = e.offsetY;
+        let toInsert: Point = {x:e.offsetX,y:e.offsetY};
+        pointContainer[pointContainer.length-1].push(toInsert);
+        canvas.dispatchEvent(new Event("drawing-changed"));
       }
 })
 
-canvas.addEventListener("mouseup", (e)=>{
+canvas.addEventListener("mouseup", ()=>{
     if (isDrawing) {
-        drawLine(context, x, y, e.offsetX, e.offsetY);
-        x = 0;
-        y = 0;
         isDrawing = false;
       }
 })
 
-function drawLine(context, x1, y1, x2, y2) {
-    context.beginPath();
-    context.strokeStyle = "black";
-    context.lineWidth = 1;
-    context.moveTo(x1, y1);
-    context.lineTo(x2, y2);
-    context.stroke();
-    context.closePath();
+function drawLine(context: CanvasRenderingContext2D) {
+    context.clearRect(0,0,canvas.width,canvas.height);
+    for(let i = 0; i < pointContainer.length; i++){
+            context.beginPath();
+            context.strokeStyle = "black";
+            context.lineWidth = 1;
+            context.moveTo(pointContainer[i][0].x, pointContainer[i][0].y);
+        for(let j = 0; j < pointContainer[i].length; j++){
+            context.lineTo(pointContainer[i][j].x,pointContainer[i][j].y)
+            context.stroke();
+            
+        }
+        context.closePath();
+    }
   }
+//Drawing-changed Event
+canvas.addEventListener("drawing-changed", ()=>{
+    drawLine(context);
+})
 
 //Clear Button
 const clearButton = document.createElement("button");
 clearButton.innerHTML = "Clear";
 
 clearButton.addEventListener("click", ()=>{
-    context.reset();
+    context.clearRect(0,0,canvas.width,canvas.height);
+    pointContainer = [];
 })
 
 app.append(clearButton);
