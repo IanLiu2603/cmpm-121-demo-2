@@ -4,16 +4,17 @@ const APP_NAME = "sdasdasd";
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
 document.title = APP_NAME;
-app.innerHTML = APP_NAME;
+//app.innerHTML = APP_NAME;
 
 //Title
 const title = document.createElement("h1");
-title.innerHTML = "Title";
+title.innerHTML = "TSPaint";
 app.append(title);
 
 //Canvas
 const canvas = document.createElement("canvas");
 const context = canvas.getContext("2d");
+canvas.style.cursor = "none";
 
 canvas.width = 256;
 canvas.height = 256; 
@@ -137,3 +138,33 @@ thickButton.addEventListener("click", ()=>{
 
 app.append(thinButton);
 app.append(thickButton);
+
+//Custom Pointer
+interface cursorLocation{
+    x:number;
+    y:number;
+}
+let cursor: cursorLocation | null = null;
+canvas.addEventListener("mouseenter",(e)=>{
+    cursor = {x:e.offsetX, y:e.offsetY};
+})
+
+canvas.addEventListener("mouseleave",()=>{
+    context?.clearRect(0,0,canvas.width,canvas.height);
+    canvas.dispatchEvent(new Event("drawing-changed"));
+    cursor = null;
+})
+canvas.addEventListener("mousemove",(e)=>{
+    if(cursor && !isDrawing){
+        context?.clearRect(0,0,canvas.width,canvas.height);
+        canvas.dispatchEvent(new Event("drawing-changed"));
+        cursor.x = e.offsetX;
+        cursor.y = e.offsetY;
+        canvas.dispatchEvent(new Event("tool-moved"));
+    }
+})
+canvas.addEventListener("tool-moved",()=>{
+    context?.beginPath();
+    context?.arc(cursor.x, cursor.y,thickness, 0, 2*Math.PI);
+    context?.stroke();
+})
