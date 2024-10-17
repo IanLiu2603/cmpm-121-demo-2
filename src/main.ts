@@ -30,17 +30,19 @@ interface Point {
 
 interface markerLine{
     initial: Point;
-    drag: Point;
+    drag: Point[];
+    thickness: number;
 }
 
-let pointContainer: Point [][] = [];
+let lineContainer: markerLine[] = [];
 let isDrawing: boolean = false;
 let x:number = 0;
 let y:number = 0;
 
 canvas.addEventListener("mousedown", (e)=>{
     let insert: Point = {x:e.offsetX, y:e.offsetY, ctx:context};
-    pointContainer.push([insert]);
+    let line: markerLine = {initial: insert, drag: [], thickness: thickness}
+    lineContainer.push(line);
     isDrawing = true;
     canvas.dispatchEvent(new Event("drawing-changed"));
 })
@@ -48,7 +50,7 @@ canvas.addEventListener("mousedown", (e)=>{
 canvas.addEventListener("mousemove", (e)=>{
     if (isDrawing) {
         let toInsert: Point = {x:e.offsetX,y:e.offsetY, ctx:context};
-        pointContainer[pointContainer.length-1].push(toInsert);
+        lineContainer[lineContainer.length-1].drag.push(toInsert);
         canvas.dispatchEvent(new Event("drawing-changed"));
       }
 })
@@ -62,13 +64,14 @@ canvas.addEventListener("mouseup", ()=>{
 //Drawing-changed Event
 canvas.addEventListener("drawing-changed", ()=>{
     context?.clearRect(0,0,canvas.width,canvas.height);
-    for(let i = 0; i < pointContainer.length; i++){
+    for(let i = 0; i < lineContainer.length; i++){
             context?.beginPath();
             context.strokeStyle = "black";
-            context.lineWidth = 1;
-            context?.moveTo(pointContainer[i][0].x, pointContainer[i][0].y);
-        for(let j = 0; j < pointContainer[i].length; j++){
-            context?.lineTo(pointContainer[i][j].x,pointContainer[i][j].y)
+            context.lineWidth = lineContainer[i].thickness;
+            console.log(thickness);
+            context?.moveTo(lineContainer[i].initial.x,lineContainer[i].initial.y);
+        for(let j = 0; j < lineContainer[i].drag.length; j++){
+            context?.lineTo(lineContainer[i].drag[j].x,lineContainer[i].drag[j].y)
             context?.stroke();
             
         }
@@ -82,21 +85,21 @@ clearButton.innerHTML = "Clear";
 
 clearButton.addEventListener("click", ()=>{
     context?.clearRect(0,0,canvas.width,canvas.height);
-    pointContainer = [];
+    lineContainer = [];
     undoStack = [];
 })
 
 app.append(clearButton);
 
 //Undo Button
-let undoStack: Point[][] = []; //Emulate stack behavior with push and pop
+let undoStack: markerLine[] = []; //Emulate stack behavior with push and pop
 
 const undoButton = document.createElement("button");
 undoButton.innerHTML = "Undo"
 
 undoButton.addEventListener("click", ()=>{
-    if(pointContainer.length != 0){
-        let temp: Point[]= pointContainer.pop();
+    if(lineContainer.length != 0){
+        let temp: markerLine= lineContainer.pop();
         undoStack.push(temp);
         canvas.dispatchEvent(new Event("drawing-changed"));
     }
@@ -110,10 +113,27 @@ redoButton.innerHTML = "Redo"
 
 redoButton.addEventListener("click", ()=>{
     if(undoStack.length!=0){
-        let temp: Point = undoStack.pop();
-        pointContainer.push(temp);
+        let temp: markerLine = undoStack.pop();
+        lineContainer.push(temp);
         canvas.dispatchEvent(new Event("drawing-changed"));
     }
 })
 
 app.append(redoButton);
+
+//Marker Selector
+let thickness: number = 1;
+const thinButton = document.createElement("button");
+const thickButton = document.createElement("button");
+thinButton.innerHTML = "thin";
+thickButton.innerHTML = "thick";
+
+thinButton.addEventListener("click",()=>{
+    thickness = 1;
+})
+thickButton.addEventListener("click", ()=>{
+    thickness = 3;
+})
+
+app.append(thinButton);
+app.append(thickButton);
