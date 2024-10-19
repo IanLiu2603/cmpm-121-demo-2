@@ -42,10 +42,15 @@ let y:number = 0;
 
 canvas.addEventListener("mousedown", (e)=>{
     let insert: Point = {x:e.offsetX, y:e.offsetY, ctx:context};
-    let line: markerLine = {initial: insert, drag: [], thickness: thickness}
-    lineContainer.push(line);
-    isDrawing = true;
-    canvas.dispatchEvent(new Event("drawing-changed"));
+    if(!isEmoji){
+        isDrawing = true;
+        let line: markerLine = {initial: insert, drag: [], thickness: thickness}
+        lineContainer.push(line);
+        canvas.dispatchEvent(new Event("drawing-changed"));
+    }
+    else{
+        canvas.dispatchEvent(new Event("emoji-placed"));
+    }
 })
 
 canvas.addEventListener("mousemove", (e)=>{
@@ -69,7 +74,6 @@ canvas.addEventListener("drawing-changed", ()=>{
             context?.beginPath();
             context.strokeStyle = "black";
             context.lineWidth = lineContainer[i].thickness;
-            console.log(thickness);
             context?.moveTo(lineContainer[i].initial.x,lineContainer[i].initial.y);
         for(let j = 0; j < lineContainer[i].drag.length; j++){
             context?.lineTo(lineContainer[i].drag[j].x,lineContainer[i].drag[j].y)
@@ -77,6 +81,11 @@ canvas.addEventListener("drawing-changed", ()=>{
             
         }
         context?.closePath();
+    }
+    for(let i = 0; i< emojiList.length;i++){
+        if(emojiList[i].location){
+            context.fillText(emojiList[i].name,emojiList[i].location.x,emojiList[i].location.y);
+        }
     }
 })
 
@@ -131,9 +140,11 @@ thickButton.innerHTML = "thick";
 
 thinButton.addEventListener("click",()=>{
     thickness = 1;
+    isEmoji = false;
 })
 thickButton.addEventListener("click", ()=>{
     thickness = 3;
+    isEmoji = false;
 })
 
 app.append(thinButton);
@@ -163,8 +174,72 @@ canvas.addEventListener("mousemove",(e)=>{
         canvas.dispatchEvent(new Event("tool-moved"));
     }
 })
+
 canvas.addEventListener("tool-moved",()=>{
+    if(isEmoji){
+        emojiMarker();
+    
+    }
+    else{
+        cursorMarker();
+    }
+})
+let cursorIcon: string;
+function cursorMarker(){
     context?.beginPath();
     context?.arc(cursor.x, cursor.y,thickness, 0, 2*Math.PI);
     context?.stroke();
+}
+function emojiMarker(){
+    context.fillText(cursorIcon,cursor.x,cursor.y);
+}
+
+//Emojis
+interface Emoji{
+    location: Point | null;
+    name :string;    
+}
+canvas.addEventListener("emoji-placed",()=>{
+    for(let i = 0; i < emojiList.length; i++){
+        if(emojiList[i].name == cursorIcon){
+            if(!emojiList[i].location){
+                let toPush:Point = {x:cursor.x,y:cursor.y,ctx:context};
+                emojiList[i].location = toPush;
+
+            }
+            else{
+                emojiList[i].location = {x:cursor?.x, y:cursor.y, ctx:context};
+            }
+        }
+    }
 })
+
+let emojiList: Emoji[] = [];
+let emojiNames:string[] = ["🐥","🦧","🇹🇼"]
+
+for(let i = 0; i < emojiNames.length; i++){
+    emojiList.push({location: null,name: emojiNames[i]});
+}
+
+let isEmoji: boolean = false;
+const chickenButton = document.createElement("button");
+const monkeButton = document.createElement("button");
+const taiwanButton = document.createElement("button")
+
+chickenButton.innerHTML = "🐥";
+monkeButton.innerHTML = "🦧";
+taiwanButton.innerHTML = "🇹🇼";
+
+app.append(chickenButton);
+app.append(monkeButton);
+app.append(taiwanButton);   
+
+function toggleEmoji(e:HTMLButtonElement){
+    isEmoji = true;
+    cursorIcon = e.innerHTML;
+}
+
+chickenButton.addEventListener("click",()=>toggleEmoji(chickenButton));
+monkeButton.addEventListener("click",()=>toggleEmoji(monkeButton));
+taiwanButton.addEventListener("click",()=>toggleEmoji(taiwanButton));
+
