@@ -243,3 +243,20 @@ chickenButton.addEventListener("click",()=>toggleEmoji(chickenButton));
 monkeButton.addEventListener("click",()=>toggleEmoji(monkeButton));
 taiwanButton.addEventListener("click",()=>toggleEmoji(taiwanButton));
 
+//Emoji Prompt
+const customButton = document.createElement("button");
+customButton.innerHTML = "Custom Sticker";
+
+let customText:string | null;
+
+customButton.addEventListener("click",()=>{
+    customText = prompt("Custom Sticker");
+    if(customText){
+        emojiList.push({location:null , name: customText});
+        isEmoji = true;
+        cursorIcon = customText;
+    }
+})
+
+app.append(customButton);   
+
