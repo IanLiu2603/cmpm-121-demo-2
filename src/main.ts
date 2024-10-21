@@ -13,7 +13,7 @@ app.append(title);
 
 //Canvas
 const canvas = document.createElement("canvas");
-const context = canvas.getContext("2d");
+const context:CanvasRenderingContext2D = canvas.getContext("2d");
 canvas.style.cursor = "none";
 
 canvas.width = 256;
@@ -69,7 +69,7 @@ canvas.addEventListener("mouseup", ()=>{
 
 //Drawing-changed Event
 canvas.addEventListener("drawing-changed", ()=>{
-    context?.clearRect(0,0,canvas.width,canvas.height);
+    context.clearRect(0,0,canvas.width,canvas.height);
     for(let i = 0; i < lineContainer.length; i++){
             context?.beginPath();
             context.strokeStyle = "black";
@@ -181,14 +181,14 @@ canvas.addEventListener("tool-moved",()=>{
     
     }
     else{
-        cursorMarker();
+        cursorMarker(context);
     }
 })
 let cursorIcon: string;
-function cursorMarker(){
-    context?.beginPath();
-    context?.arc(cursor.x, cursor.y,thickness, 0, 2*Math.PI);
-    context?.stroke();
+function cursorMarker(ctx:CanvasRenderingContext2D){
+    ctx.beginPath();
+    ctx.arc(cursor.x, cursor.y,thickness, 0, 2*Math.PI);
+    ctx.stroke();
 }
 function emojiMarker(){
     context.fillText(cursorIcon,cursor.x,cursor.y);
@@ -260,3 +260,44 @@ customButton.addEventListener("click",()=>{
 
 app.append(customButton);   
 
+//Export
+const exportButton = document.createElement("button");
+exportButton.innerHTML = "Export";
+
+const exportCanvas = document.createElement("canvas");
+const exportContext:CanvasRenderingContext2D = exportCanvas.getContext("2d");
+exportCanvas.style.cursor = "none";
+
+exportCanvas.width = 1024;
+exportCanvas.height = 1024; 
+exportContext.scale(4,4);
+
+exportButton.addEventListener("click",()=>{
+    console.log("exporting");
+    exportContext.clearRect(0,0,exportCanvas.width,exportCanvas.height);
+    for(let i = 0; i < lineContainer.length; i++){
+            exportContext?.beginPath();
+            exportContext.strokeStyle = "black";
+            exportContext.lineWidth = lineContainer[i].thickness;
+            exportContext?.moveTo(lineContainer[i].initial.x,lineContainer[i].initial.y);
+        for(let j = 0; j < lineContainer[i].drag.length; j++){
+            exportContext?.lineTo(lineContainer[i].drag[j].x,lineContainer[i].drag[j].y)
+            exportContext?.stroke();
+            
+        }
+        exportContext?.closePath();
+    }
+    for(let i = 0; i< emojiList.length;i++){
+        if(emojiList[i].location){
+            exportContext.fillText(emojiList[i].name,emojiList[i].location.x,emojiList[i].location.y);
+        }
+    }
+    const anchor = document.createElement("a");
+    anchor.href = canvas.toDataURL("image/png");
+    anchor.download = "sketchpad.png";
+    anchor.click();
+
+})
+
+
+app.append(exportButton);
