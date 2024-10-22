@@ -16,6 +16,7 @@ const canvas = document.createElement("canvas");
 const context:CanvasRenderingContext2D = canvas.getContext("2d");
 canvas.style.cursor = "none";
 
+
 canvas.width = 256;
 canvas.height = 256; 
 
@@ -235,6 +236,7 @@ app.append(monkeButton);
 app.append(taiwanButton);   
 
 function toggleEmoji(e:HTMLButtonElement){
+    context.font = "30px serif";
     isEmoji = true;
     cursorIcon = e.innerHTML;
 }
