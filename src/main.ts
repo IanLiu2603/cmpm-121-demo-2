@@ -15,6 +15,7 @@ app.append(title);
 const canvas = document.createElement("canvas");
 const context:CanvasRenderingContext2D = canvas.getContext("2d");
 canvas.style.cursor = "none";
+let color: string = "black";
 
 
 canvas.width = 256;
@@ -34,6 +35,7 @@ interface markerLine{
     initial: Point;
     drag: Point[];
     thickness: number;
+    color: string;
 }
 
 let lineContainer: markerLine[] = [];
@@ -45,7 +47,7 @@ canvas.addEventListener("mousedown", (e)=>{
     let insert: Point = {x:e.offsetX, y:e.offsetY, ctx:context};
     if(!isEmoji){
         isDrawing = true;
-        let line: markerLine = {initial: insert, drag: [], thickness: thickness}
+        let line: markerLine = {initial: insert, drag: [], thickness: thickness, color: color}
         lineContainer.push(line);
         canvas.dispatchEvent(new Event("drawing-changed"));
     }
@@ -73,7 +75,7 @@ canvas.addEventListener("drawing-changed", ()=>{
     context.clearRect(0,0,canvas.width,canvas.height);
     for(let i = 0; i < lineContainer.length; i++){
             context?.beginPath();
-            context.strokeStyle = "black";
+            context.strokeStyle = lineContainer[i].color;
             context.lineWidth = lineContainer[i].thickness;
             context?.moveTo(lineContainer[i].initial.x,lineContainer[i].initial.y);
         for(let j = 0; j < lineContainer[i].drag.length; j++){
@@ -187,6 +189,7 @@ canvas.addEventListener("tool-moved",()=>{
 })
 let cursorIcon: string;
 function cursorMarker(ctx:CanvasRenderingContext2D){
+    ctx.strokeStyle = color;
     ctx.beginPath();
     ctx.arc(cursor.x, cursor.y,thickness, 0, 2*Math.PI);
     ctx.stroke();
@@ -275,11 +278,10 @@ exportCanvas.height = 1024;
 exportContext.scale(4,4);
 
 exportButton.addEventListener("click",()=>{
-    console.log("exporting");
     exportContext.clearRect(0,0,exportCanvas.width,exportCanvas.height);
     for(let i = 0; i < lineContainer.length; i++){
             exportContext?.beginPath();
-            exportContext.strokeStyle = "black";
+            exportContext.strokeStyle = lineContainer[i].color;
             exportContext.lineWidth = lineContainer[i].thickness;
             exportContext?.moveTo(lineContainer[i].initial.x,lineContainer[i].initial.y);
         for(let j = 0; j < lineContainer[i].drag.length; j++){
@@ -303,3 +305,20 @@ exportButton.addEventListener("click",()=>{
 
 
 app.append(exportButton);
+
+//Color
+let redButton = document.createElement("button");
+redButton.addEventListener("click",()=>colorControl(redButton));
+redButton.innerHTML = "red";
+
+
+let blackButton = document.createElement("button");
+blackButton.addEventListener("click",()=>colorControl(blackButton));
+blackButton.innerHTML = "black";
+
+function colorControl(e){
+    color = e.innerHTML;
+}
+
+app.append(blackButton);
+app.append(redButton);
