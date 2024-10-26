@@ -23,7 +23,7 @@ app.append(title);
 const canvas = document.createElement("canvas");
 const context:CanvasRenderingContext2D = canvas.getContext("2d");
 canvas.style.cursor = "none";
-let color: string = "black";
+let currentColor: string = "black";
 
 
 canvas.width = defaultWidth;
@@ -42,8 +42,8 @@ interface Point {
 interface markerLine{
     initial: Point;
     drag: Point[];
-    thickness: number;
-    color: string;
+    currentThickness: number;
+    currentColor: string;
 }
 
 let lineContainer: markerLine[] = [];
@@ -52,7 +52,7 @@ let isDrawing: boolean = false;
 canvas.addEventListener("mousedown", (e)=>{
     if(!isEmoji){
         isDrawing = true;
-        lineContainer.push({initial: {x:e.offsetX, y:e.offsetY, ctx:context}, drag: [], thickness: thickness, color: color});
+        lineContainer.push({initial: {x:e.offsetX, y:e.offsetY, ctx:context}, drag: [], currentThickness: currentThickness, currentColor: currentColor});
         canvas.dispatchEvent(new Event("drawing-changed"));
     }
     else{
@@ -78,8 +78,8 @@ canvas.addEventListener("drawing-changed", ()=>{
     context.clearRect(0,0,canvas.width,canvas.height);
     for(let i = 0; i < lineContainer.length; i++){
             context?.beginPath();
-            context.strokeStyle = lineContainer[i].color;
-            context.lineWidth = lineContainer[i].thickness;
+            context.strokeStyle = lineContainer[i].currentColor;
+            context.lineWidth = lineContainer[i].currentThickness;
             context?.moveTo(lineContainer[i].initial.x,lineContainer[i].initial.y);
         for(let j = 0; j < lineContainer[i].drag.length; j++){
             context?.lineTo(lineContainer[i].drag[j].x,lineContainer[i].drag[j].y)
@@ -138,18 +138,18 @@ redoButton.addEventListener("click", ()=>{
 app.append(redoButton);
 
 //Marker Selector
-let thickness: number = 1;
+let currentThickness: number = 1;
 const thinButton = document.createElement("button");
 const thickButton = document.createElement("button");
 thinButton.innerHTML = "thin";
 thickButton.innerHTML = "thick";
 
 thinButton.addEventListener("click",()=>{
-    thickness = 1;
+    currentThickness = 1;
     isEmoji = false;
 })
 thickButton.addEventListener("click", ()=>{
-    thickness = 3;
+    currentThickness = 3;
     isEmoji = false;
 })
 
@@ -192,9 +192,9 @@ canvas.addEventListener("tool-moved",()=>{
 })
 let cursorIcon: string;
 function cursorMarker(ctx:CanvasRenderingContext2D){
-    ctx.strokeStyle = color;
+    ctx.strokeStyle = currentColor;
     ctx.beginPath();
-    ctx.arc(cursor.x, cursor.y,thickness, 0, 2*Math.PI);
+    ctx.arc(cursor.x, cursor.y,currentThickness, 0, 2*Math.PI);
     ctx.stroke();
 }
 function emojiMarker(){
@@ -283,8 +283,8 @@ exportButton.addEventListener("click",()=>{
     exportContext.clearRect(0,0,exportCanvas.width,exportCanvas.height);
     for(let i = 0; i < lineContainer.length; i++){
             exportContext?.beginPath();
-            exportContext.strokeStyle = lineContainer[i].color;
-            exportContext.lineWidth = lineContainer[i].thickness;
+            exportContext.strokeStyle = lineContainer[i].currentColor;
+            exportContext.lineWidth = lineContainer[i].currentThickness;
             exportContext?.moveTo(lineContainer[i].initial.x,lineContainer[i].initial.y);
         for(let j = 0; j < lineContainer[i].drag.length; j++){
             exportContext?.lineTo(lineContainer[i].drag[j].x,lineContainer[i].drag[j].y)
@@ -319,7 +319,7 @@ blackButton.addEventListener("click",()=>colorControl(blackButton));
 blackButton.innerHTML = "black";
 
 function colorControl(e){
-    color = e.innerHTML;
+    currentColor = e.innerHTML;
 }
 
 app.append(blackButton);
