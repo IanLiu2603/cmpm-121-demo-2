@@ -6,6 +6,14 @@ const app = document.querySelector<HTMLDivElement>("#app")!;
 document.title = APP_NAME;
 //app.innerHTML = APP_NAME;
 
+//App defaults
+const defaultWidth = 256;
+const defaultHeight = 256;
+const exportWidth = 1024;
+const exportHeight = 1024;
+const exportRatioWidht = defaultWidth/exportWidth;
+const exportRatioHeight = defaultHeight/exportHeight;
+
 //Title
 const title = document.createElement("h1");
 title.innerHTML = "TSPaint";
@@ -18,8 +26,8 @@ canvas.style.cursor = "none";
 let color: string = "black";
 
 
-canvas.width = 256;
-canvas.height = 256; 
+canvas.width = defaultWidth;
+canvas.height = defaultWidth; 
 
 app.append(canvas);
 
@@ -267,9 +275,9 @@ const exportCanvas = document.createElement("canvas");
 const exportContext:CanvasRenderingContext2D = exportCanvas.getContext("2d");
 exportCanvas.style.cursor = "none";
 
-exportCanvas.width = 1024;
-exportCanvas.height = 1024; 
-exportContext.scale(4,4);
+exportCanvas.width = exportWidth;
+exportCanvas.height = exportWidth; 
+exportContext.scale(exportRatioWidth,exportRatioHeight);
 
 exportButton.addEventListener("click",()=>{
     exportContext.clearRect(0,0,exportCanvas.width,exportCanvas.height);
