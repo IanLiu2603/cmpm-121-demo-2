@@ -40,15 +40,11 @@ interface markerLine{
 
 let lineContainer: markerLine[] = [];
 let isDrawing: boolean = false;
-let x:number = 0;
-let y:number = 0;
 
 canvas.addEventListener("mousedown", (e)=>{
-    let insert: Point = {x:e.offsetX, y:e.offsetY, ctx:context};
     if(!isEmoji){
         isDrawing = true;
-        let line: markerLine = {initial: insert, drag: [], thickness: thickness, color: color}
-        lineContainer.push(line);
+        lineContainer.push({initial: {x:e.offsetX, y:e.offsetY, ctx:context}, drag: [], thickness: thickness, color: color});
         canvas.dispatchEvent(new Event("drawing-changed"));
     }
     else{
@@ -58,8 +54,7 @@ canvas.addEventListener("mousedown", (e)=>{
 
 canvas.addEventListener("mousemove", (e)=>{
     if (isDrawing) {
-        let toInsert: Point = {x:e.offsetX,y:e.offsetY, ctx:context};
-        lineContainer[lineContainer.length-1].drag.push(toInsert);
+        lineContainer[lineContainer.length-1].drag.push({x:e.offsetX,y:e.offsetY, ctx:context});
         canvas.dispatchEvent(new Event("drawing-changed"));
       }
 })
@@ -112,7 +107,7 @@ undoButton.innerHTML = "Undo"
 
 undoButton.addEventListener("click", ()=>{
     if(lineContainer.length != 0){
-        let temp: markerLine= lineContainer.pop();
+        const temp: markerLine= lineContainer.pop();
         undoStack.push(temp);
         canvas.dispatchEvent(new Event("drawing-changed"));
     }
@@ -126,7 +121,7 @@ redoButton.innerHTML = "Redo"
 
 redoButton.addEventListener("click", ()=>{
     if(undoStack.length!=0){
-        let temp: markerLine = undoStack.pop();
+        const temp: markerLine = undoStack.pop();
         lineContainer.push(temp);
         canvas.dispatchEvent(new Event("drawing-changed"));
     }
@@ -207,8 +202,7 @@ canvas.addEventListener("emoji-placed",()=>{
     for(let i = 0; i < emojiList.length; i++){
         if(emojiList[i].name == cursorIcon){
             if(!emojiList[i].location){
-                let toPush:Point = {x:cursor.x,y:cursor.y,ctx:context};
-                emojiList[i].location = toPush;
+                emojiList[i].location = {x:cursor.x,y:cursor.y,ctx:context};
 
             }
             else{
@@ -218,8 +212,8 @@ canvas.addEventListener("emoji-placed",()=>{
     }
 })
 
-let emojiList: Emoji[] = [];
-let emojiNames:string[] = ["🐥","🦧","🇹🇼"]
+const emojiList: Emoji[] = [];
+const emojiNames:string[] = ["🐥","🦧","🇹🇼"]
 
 for(let i = 0; i < emojiNames.length; i++){
     emojiList.push({location: null,name: emojiNames[i]});
@@ -307,12 +301,12 @@ exportButton.addEventListener("click",()=>{
 app.append(exportButton);
 
 //Color
-let redButton = document.createElement("button");
+const redButton = document.createElement("button");
 redButton.addEventListener("click",()=>colorControl(redButton));
 redButton.innerHTML = "red";
 
 
-let blackButton = document.createElement("button");
+const blackButton = document.createElement("button");
 blackButton.addEventListener("click",()=>colorControl(blackButton));
 blackButton.innerHTML = "black";
 
