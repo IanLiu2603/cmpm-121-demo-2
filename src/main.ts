@@ -49,6 +49,13 @@ interface markerLine{
 let lineContainer: markerLine[] = [];
 let isDrawing: boolean = false;
 
+function CreateButton(text: string, clickHandler: () => void): HTMLButtonElement {
+    const button = document.createElement("button");
+    button.innerHTML = text;
+    button.addEventListener("click", clickHandler);
+    return button;
+}
+
 canvas.addEventListener("mousedown", (e)=>{
     if(!isEmoji){
         isDrawing = true;
@@ -96,62 +103,48 @@ canvas.addEventListener("drawing-changed", ()=>{
 })
 
 //Clear Button
-const clearButton = document.createElement("button");
-clearButton.innerHTML = "Clear";
-
-clearButton.addEventListener("click", ()=>{
-    context?.clearRect(0,0,canvas.width,canvas.height);
+const clearButton = CreateButton("Clear", () => {
+    context?.clearRect(0, 0, canvas.width, canvas.height);
     lineContainer = [];
     undoStack = [];
-})
+});
 
 app.append(clearButton);
 
 //Undo Button
 let undoStack: markerLine[] = []; //Emulate stack behavior with push and pop
 
-const undoButton = document.createElement("button");
-undoButton.innerHTML = "Undo"
-
-undoButton.addEventListener("click", ()=>{
-    if(lineContainer.length != 0){
-        const temp: markerLine= lineContainer.pop();
+const undoButton = CreateButton("Undo", () => {
+    if (lineContainer.length != 0) {
+        const temp: markerLine = lineContainer.pop();
         undoStack.push(temp);
         canvas.dispatchEvent(new Event("drawing-changed"));
     }
-})
+});
 
 app.append(undoButton);
 
 //Redo Button
-const redoButton = document.createElement("button");
-redoButton.innerHTML = "Redo"
-
-redoButton.addEventListener("click", ()=>{
-    if(undoStack.length!=0){
+const redoButton = CreateButton("Redo", () => {
+    if (undoStack.length != 0) {
         const temp: markerLine = undoStack.pop();
         lineContainer.push(temp);
         canvas.dispatchEvent(new Event("drawing-changed"));
     }
-})
+});
 
 app.append(redoButton);
 
 //Marker Selector
 let currentThickness: number = 1;
-const thinButton = document.createElement("button");
-const thickButton = document.createElement("button");
-thinButton.innerHTML = "thin";
-thickButton.innerHTML = "thick";
-
-thinButton.addEventListener("click",()=>{
+const thinButton = CreateButton("thin", () => {
     currentThickness = 1;
     isEmoji = false;
-})
-thickButton.addEventListener("click", ()=>{
+});
+const thickButton = CreateButton("thick", () => {
     currentThickness = 3;
     isEmoji = false;
-})
+});
 
 app.append(thinButton);
 app.append(thickButton);
@@ -229,12 +222,16 @@ for(let i = 0; i < emojiNames.length; i++){
 
 let isEmoji: boolean = false;
 const chickenButton = document.createElement("button");
-const monkeButton = document.createElement("button");
-const taiwanButton = document.createElement("button")
-
 chickenButton.innerHTML = "🐥";
+chickenButton.addEventListener("click",()=>toggleEmoji(chickenButton));
+
+const monkeButton = document.createElement("button");
 monkeButton.innerHTML = "🦧";
+monkeButton.addEventListener("click",()=>toggleEmoji(monkeButton));
+
+const taiwanButton = document.createElement("button");
 taiwanButton.innerHTML = "🇹🇼";
+taiwanButton.addEventListener("click",()=>toggleEmoji(taiwanButton));
 
 app.append(chickenButton);
 app.append(monkeButton);
@@ -246,24 +243,19 @@ function toggleEmoji(e:HTMLButtonElement){
     cursorIcon = e.innerHTML;
 }
 
-chickenButton.addEventListener("click",()=>toggleEmoji(chickenButton));
-monkeButton.addEventListener("click",()=>toggleEmoji(monkeButton));
-taiwanButton.addEventListener("click",()=>toggleEmoji(taiwanButton));
-
 //Emoji Prompt
-const customButton = document.createElement("button");
-customButton.innerHTML = "Custom Sticker";
+
 
 let customText:string | null;
 
-customButton.addEventListener("click",()=>{
+const customButton = CreateButton("Custom Sticker", () => {
     customText = prompt("Custom Sticker");
-    if(customText){
-        emojiList.push({location:null , name: customText});
+    if (customText) {
+        emojiList.push({ location: null, name: customText });
         isEmoji = true;
         cursorIcon = customText;
     }
-})
+});
 
 app.append(customButton);   
 
@@ -309,14 +301,8 @@ exportButton.addEventListener("click",()=>{
 app.append(exportButton);
 
 //Color
-const redButton = document.createElement("button");
-redButton.addEventListener("click",()=>colorControl(redButton));
-redButton.innerHTML = "red";
-
-
-const blackButton = document.createElement("button");
-blackButton.addEventListener("click",()=>colorControl(blackButton));
-blackButton.innerHTML = "black";
+const redButton = CreateButton("red", () => currentColor = "red");
+const blackButton = CreateButton("black", () => currentColor = "black");
 
 function colorControl(e){
     currentColor = e.innerHTML;
