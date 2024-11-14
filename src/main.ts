@@ -4,7 +4,6 @@ const APP_NAME = "sdasdasd";
 const app = document.querySelector<HTMLDivElement>("#app")!;
 
 document.title = APP_NAME;
-//app.innerHTML = APP_NAME;
 
 //App defaults
 const defaultWidth = 256;
@@ -17,7 +16,7 @@ const exportRatioHeight = defaultHeight/exportHeight;
 //Title
 const title = document.createElement("h1");
 title.innerHTML = "TSPaint";
-app.append(title);
+document.getElementById("title")?.appendChild(title)
 
 //Canvas
 const canvas = document.createElement("canvas");
@@ -25,11 +24,9 @@ const context:CanvasRenderingContext2D = canvas.getContext("2d");
 canvas.style.cursor = "none";
 let currentColor: string = "black";
 
-
 canvas.width = defaultWidth;
-canvas.height = defaultWidth; 
-
-app.append(canvas);
+canvas.height = defaultWidth;
+document.getElementById("canvas")?.appendChild(canvas)
 
 //Drawing
 interface Point {
@@ -108,8 +105,7 @@ const clearButton = CreateButton("Clear", () => {
     lineContainer = [];
     undoStack = [];
 });
-
-app.append(clearButton);
+document.getElementById("tools")?.appendChild(clearButton)
 
 //Undo Button
 let undoStack: markerLine[] = []; //Emulate stack behavior with push and pop
@@ -121,8 +117,7 @@ const undoButton = CreateButton("Undo", () => {
         canvas.dispatchEvent(new Event("drawing-changed"));
     }
 });
-
-app.append(undoButton);
+document.getElementById("tools")?.appendChild(undoButton)
 
 //Redo Button
 const redoButton = CreateButton("Redo", () => {
@@ -132,8 +127,7 @@ const redoButton = CreateButton("Redo", () => {
         canvas.dispatchEvent(new Event("drawing-changed"));
     }
 });
-
-app.append(redoButton);
+document.getElementById("tools")?.appendChild(redoButton)
 
 //Marker Selector
 let currentThickness: number = 1;
@@ -145,9 +139,8 @@ const thickButton = CreateButton("thick", () => {
     currentThickness = 3;
     isEmoji = false;
 });
-
-app.append(thinButton);
-app.append(thickButton);
+document.getElementById("tools")?.appendChild(thinButton)
+document.getElementById("tools")?.appendChild(thickButton)
 
 //Custom Pointer
 interface cursorLocation{
@@ -233,9 +226,9 @@ const taiwanButton = document.createElement("button");
 taiwanButton.innerHTML = "🇹🇼";
 taiwanButton.addEventListener("click",()=>toggleEmoji(taiwanButton));
 
-app.append(chickenButton);
-app.append(monkeButton);
-app.append(taiwanButton);   
+document.getElementById("emojis")?.appendChild(chickenButton)
+document.getElementById("emojis")?.appendChild(monkeButton)
+document.getElementById("emojis")?.appendChild(taiwanButton)   
 
 function toggleEmoji(e:HTMLButtonElement){
     context.font = "30px serif";
@@ -256,8 +249,7 @@ const customButton = CreateButton("Custom Sticker", () => {
         cursorIcon = customText;
     }
 });
-
-app.append(customButton);   
+document.getElementById("emojis")?.appendChild(customButton)   
 
 //Export
 const exportButton = document.createElement("button");
@@ -297,8 +289,7 @@ exportButton.addEventListener("click",()=>{
 
 })
 
-
-app.append(exportButton);
+document.getElementById("special")?.appendChild(exportButton);
 
 //Color
 const redButton = CreateButton("red", () => currentColor = "red");
@@ -307,6 +298,5 @@ const blackButton = CreateButton("black", () => currentColor = "black");
 function colorControl(e){
     currentColor = e.innerHTML;
 }
-
-app.append(blackButton);
-app.append(redButton);
+document.getElementById("special")?.appendChild(blackButton);
+document.getElementById("special")?.appendChild(redButton);
