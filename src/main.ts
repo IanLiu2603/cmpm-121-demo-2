@@ -11,7 +11,7 @@ const defaultWidth = 256;
 const defaultHeight = 256;
 const exportWidth = 1024;
 const exportHeight = 1024;
-const exportRatioWidht = defaultWidth/exportWidth;
+const exportRatioWidth = defaultWidth/exportWidth;
 const exportRatioHeight = defaultHeight/exportHeight;
 
 //Title
